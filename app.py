@@ -205,7 +205,7 @@ if uploaded_file:
                         st.markdown('<div class="verdict real">REAL IMAGE</div>', unsafe_allow_html=True)
                     
                     st.progress(min(max(confidence, 0.0), 1.0))
-                    st.markdown(f"**Overall Confidence:** {confidence:.2%}")
+
                     
                     if reasons:
                         st.markdown("**Reasons:**")
@@ -228,7 +228,6 @@ if uploaded_file:
                                 st.markdown(f"**Forged:** {status}")
                             if prob is not None:
                                 st.progress(min(max(prob, 0.0), 1.0))
-                                st.caption(f"Confidence: {prob:.2%}")
                             st.caption(f"Model: {result_tampered.get('model', 'N/A')}")
                         else:
                             st.error("Error in tampered detection")
@@ -241,7 +240,6 @@ if uploaded_file:
                             st.markdown(f"**Prediction:** `{prediction}`")
                             if synth_prob is not None:
                                 st.progress(min(max(synth_prob, 0.0), 1.0))
-                                st.caption(f"Confidence: {synth_prob:.2%}")
                         else:
                             st.error("Error in generated detection")
             
@@ -269,7 +267,6 @@ if uploaded_file:
                                     st.markdown(f"**Forged:** {status}", unsafe_allow_html=True)
                                 if prob is not None:
                                     st.progress(min(max(prob, 0.0), 1.0))
-                                    st.caption(f"Confidence: {prob:.2%}")
                                 st.caption(f"Model: {result_tampered.get('model', 'N/A')}")
                                 with st.expander("View Raw JSON"):
                                     st.json(result_tampered)
@@ -289,7 +286,6 @@ if uploaded_file:
                                 st.markdown(f"**Prediction:** `{prediction}`", unsafe_allow_html=True)
                                 if synth_prob is not None:
                                     st.progress(min(max(synth_prob, 0.0), 1.0))
-                                    st.caption(f"Confidence: {synth_prob:.2%}")
                                 st.caption(f"AI by Model: {result_generated.get('ai_by_model', 'N/A')}")
                                 st.caption(f"AI by EXIF: {result_generated.get('ai_by_exif', 'N/A')}")
                                 st.caption(f"AI by C2PA: {result_generated.get('ai_by_c2pa', 'N/A')}")
@@ -312,7 +308,6 @@ if uploaded_file:
                                 st.markdown(f"**Forged:** {status}", unsafe_allow_html=True)
                             if prob is not None:
                                 st.progress(min(max(prob, 0.0), 1.0))
-                                st.caption(f"Confidence: {prob:.2%}")
                             st.caption(f"Model: {result_tampered.get('model', 'N/A')}")
                             with st.expander("View Raw JSON"):
                                 st.json(result_tampered)
@@ -331,7 +326,6 @@ if uploaded_file:
                             st.markdown(f"**Prediction:** `{prediction}`", unsafe_allow_html=True)
                             if synth_prob is not None:
                                 st.progress(min(max(synth_prob, 0.0), 1.0))
-                                st.caption(f"Confidence: {synth_prob:.2%}")
                             st.caption(f"AI by Model: {result_generated.get('ai_by_model', 'N/A')}")
                             st.caption(f"AI by EXIF: {result_generated.get('ai_by_exif', 'N/A')}")
                             st.caption(f"AI by C2PA: {result_generated.get('ai_by_c2pa', 'N/A')}")
@@ -341,3 +335,4 @@ if uploaded_file:
 
 # Footer
 st.markdown("---")
+
