@@ -87,7 +87,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Main title and description
-st.title(" AI Image Classifier")
+st.title("AI Image Classifier")
 st.markdown("Upload an image to analyze whether it is **AI-tampered** or **AI-generated**.", unsafe_allow_html=True)
 
 # Mode selection
@@ -118,7 +118,7 @@ if uploaded_file:
                 help="Select which analysis to perform"
             )
         
-        if st.button(" Analyze Image", use_container_width=True):
+        if st.button("Analyze Image", use_container_width=True):
             with st.spinner("Analyzing image..."):
                 file_bytes = uploaded_file.read()
 
@@ -161,36 +161,49 @@ if uploaded_file:
         if "results" in st.session_state:
             if st.session_state.results["mode"] == "Auto":
                 # AUTO MODE: Consolidated results
-                st.markdown("###  Consolidated Analysis")
+                st.markdown("### Consolidated Analysis")
                 
                 result_tampered = st.session_state.results["tampered"]
                 result_generated = st.session_state.results["generated"]
                 
                 # Calculate consolidated verdict
-                is_ai = False
+                is_tampered = False
+                is_generated = False
                 confidence = 0.0
                 reasons = []
                 
                 if result_tampered and "error" not in result_tampered:
                     if result_tampered.get("is_forged"):
-                        is_ai = True
+                        is_tampered = True
                         confidence = max(confidence, result_tampered.get("probability", 0))
                         reasons.append("Image shows signs of tampering")
                 
                 if result_generated and "error" not in result_generated:
-                    if result_generated.get("final_prediction") == "AI":
-                        is_ai = True
+                    prediction = result_generated.get("final_prediction", "").upper()
+                    
+                    # Check multiple possible values for AI detection
+                    if prediction in ["AI", "SYNTHETIC", "FAKE", "GENERATED"]:
+                        is_generated = True
                         confidence = max(confidence, result_generated.get("p_synth", 0))
                         reasons.append("Image appears to be AI-generated")
+                    
+                    # Also check probability threshold as backup
+                    p_synth = result_generated.get("p_synth", 0)
+                    if p_synth > 0.5:  # If confidence is over 50%, consider it AI
+                        is_generated = True
+                        confidence = max(confidence, p_synth)
+                        if "Image appears to be AI-generated" not in reasons:
+                            reasons.append("Image appears to be AI-generated")
                 
                 # Display consolidated result
                 with st.container():
                     st.markdown('<div class="auto-result-card">', unsafe_allow_html=True)
+                    st.markdown("## Result:")
                     
-                    if is_ai:
-                        st.markdown('<div class="verdict ai"> AI-GENERATED/TAMPERED</div>', unsafe_allow_html=True)
+                    if is_tampered or is_generated:
+                        st.markdown('<div class="verdict ai">AI-TAMPERED / AI-GENERATED</div>', unsafe_allow_html=True)
                     else:
-                        st.markdown('<div class="verdict real"> REAL IMAGE</div>', unsafe_allow_html=True)
+                        st.markdown('<div class="verdict real">REAL IMAGE</div>', unsafe_allow_html=True)
                     
                     st.progress(min(max(confidence, 0.0), 1.0))
                     st.markdown(f"**Overall Confidence:** {confidence:.2%}")
@@ -203,16 +216,16 @@ if uploaded_file:
                     st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Detailed breakdown in expander
-                with st.expander(" View Detailed Breakdown"):
+                with st.expander("View Detailed Breakdown"):
                     col1, col2 = st.columns(2)
                     
                     with col1:
-                        st.markdown("####  AI-Tampered Detection")
+                        st.markdown("#### AI-Tampered Detection")
                         if result_tampered and "error" not in result_tampered:
                             forged = result_tampered.get("is_forged")
                             prob = result_tampered.get("probability")
                             if forged is not None:
-                                status = " Yes" if forged else " No"
+                                status = "Yes" if forged else "No"
                                 st.markdown(f"**Forged:** {status}")
                             if prob is not None:
                                 st.progress(min(max(prob, 0.0), 1.0))
@@ -222,7 +235,7 @@ if uploaded_file:
                             st.error("Error in tampered detection")
                     
                     with col2:
-                        st.markdown("####  AI-Generated Detection")
+                        st.markdown("#### AI-Generated Detection")
                         if result_generated and "error" not in result_generated:
                             prediction = result_generated.get("final_prediction", "N/A")
                             synth_prob = result_generated.get("p_synth")
@@ -243,7 +256,7 @@ if uploaded_file:
                     
                     # AI-Tampered Result
                     with col1:
-                        st.subheader(" AI-Tampered Detection")
+                        st.subheader("AI-Tampered Detection")
                         with st.container():
                             st.markdown('<div class="result-card">', unsafe_allow_html=True)
                             result_tampered = st.session_state.results["tampered"]
@@ -253,7 +266,7 @@ if uploaded_file:
                                 forged = result_tampered.get("is_forged")
                                 prob = result_tampered.get("probability")
                                 if forged is not None:
-                                    status = " Yes" if forged else " No"
+                                    status = "Yes" if forged else "No"
                                     st.markdown(f"**Forged:** {status}", unsafe_allow_html=True)
                                 if prob is not None:
                                     st.progress(min(max(prob, 0.0), 1.0))
@@ -265,7 +278,7 @@ if uploaded_file:
 
                     # AI-Generated Result
                     with col2:
-                        st.subheader(" AI-Generated Detection")
+                        st.subheader("AI-Generated Detection")
                         with st.container():
                             st.markdown('<div class="result-card">', unsafe_allow_html=True)
                             result_generated = st.session_state.results["generated"]
@@ -286,7 +299,7 @@ if uploaded_file:
                             st.markdown('</div>', unsafe_allow_html=True)
                 
                 elif selected == "AI-Tampered Detection":
-                    st.subheader(" AI-Tampered Detection")
+                    st.subheader("AI-Tampered Detection")
                     with st.container():
                         st.markdown('<div class="result-card">', unsafe_allow_html=True)
                         result_tampered = st.session_state.results["tampered"]
@@ -296,7 +309,7 @@ if uploaded_file:
                             forged = result_tampered.get("is_forged")
                             prob = result_tampered.get("probability")
                             if forged is not None:
-                                status = " Yes" if forged else " No"
+                                status = "Yes" if forged else "No"
                                 st.markdown(f"**Forged:** {status}", unsafe_allow_html=True)
                             if prob is not None:
                                 st.progress(min(max(prob, 0.0), 1.0))
@@ -307,7 +320,7 @@ if uploaded_file:
                         st.markdown('</div>', unsafe_allow_html=True)
                 
                 elif selected == "AI-Generated Detection":
-                    st.subheader(" AI-Generated Detection")
+                    st.subheader("AI-Generated Detection")
                     with st.container():
                         st.markdown('<div class="result-card">', unsafe_allow_html=True)
                         result_generated = st.session_state.results["generated"]
@@ -329,3 +342,7 @@ if uploaded_file:
 
 # Footer
 st.markdown("---")
+st.markdown(
+    '<p style="text-align: center; color: #7f8c8d;">Powered by AI Detection Models | Built with Streamlit</p>',
+    unsafe_allow_html=True
+)
