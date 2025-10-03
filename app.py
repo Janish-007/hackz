@@ -14,7 +14,6 @@ st.set_page_config(page_title="AI Image Classifiers", layout="wide", initial_sid
 st.markdown("""
     <style>
     .main {
-        background-color: #f5f7fa;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -107,7 +106,7 @@ if uploaded_file:
     col_image, col_results = st.columns([1, 2], gap="medium")
 
     with col_image:
-        st.image(uploaded_file, caption="Uploaded Image Preview", use_container_width=True)
+        st.image(uploaded_file, caption="Uploaded Image Preview", use_column_width=True)
         
         # Manual mode: model selection
         if analysis_mode == "Manual":
@@ -118,7 +117,7 @@ if uploaded_file:
                 help="Select which analysis to perform"
             )
         
-        if st.button("Analyze Image", use_container_width=True):
+        if st.button("Analyze Image"):
             with st.spinner("Analyzing image..."):
                 file_bytes = uploaded_file.read()
 
@@ -342,7 +341,3 @@ if uploaded_file:
 
 # Footer
 st.markdown("---")
-st.markdown(
-    '<p style="text-align: center; color: #7f8c8d;">Powered by AI Detection Models | Built with Streamlit</p>',
-    unsafe_allow_html=True
-)
