@@ -100,6 +100,13 @@ analysis_mode = st.radio(
 
 # File uploader
 uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"], help="Supported formats: JPG, JPEG, PNG")
+if uploaded_file:
+    # Check if the uploaded file is different from the previous one
+    if "last_uploaded_file" not in st.session_state or st.session_state.last_uploaded_file != uploaded_file.name:
+        st.session_state.last_uploaded_file = uploaded_file.name
+        # Clear previous results
+        if "results" in st.session_state:
+            del st.session_state.results
 
 if uploaded_file:
     # Layout: image on left, results on right (after classification)
@@ -335,3 +342,4 @@ if uploaded_file:
 
 # Footer
 st.markdown("---")
+
