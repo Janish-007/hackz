@@ -14,7 +14,6 @@ st.set_page_config(page_title="AI Image Classifiers", layout="wide", initial_sid
 st.markdown("""
     <style>
     .main {
-        background-color: #f5f7fa;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -101,15 +100,6 @@ analysis_mode = st.radio(
 
 # File uploader
 uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"], help="Supported formats: JPG, JPEG, PNG")
-
-# Clear results when a new file is uploaded
-if uploaded_file:
-    # Check if the uploaded file is different from the previous one
-    if "last_uploaded_file" not in st.session_state or st.session_state.last_uploaded_file != uploaded_file.name:
-        st.session_state.last_uploaded_file = uploaded_file.name
-        # Clear previous results
-        if "results" in st.session_state:
-            del st.session_state.results
 
 if uploaded_file:
     # Layout: image on left, results on right (after classification)
@@ -215,7 +205,7 @@ if uploaded_file:
                         st.markdown('<div class="verdict real">REAL IMAGE</div>', unsafe_allow_html=True)
                     
                     st.progress(min(max(confidence, 0.0), 1.0))
-                    
+
                     
                     if reasons:
                         st.markdown("**Reasons:**")
@@ -238,7 +228,6 @@ if uploaded_file:
                                 st.markdown(f"**Forged:** {status}")
                             if prob is not None:
                                 st.progress(min(max(prob, 0.0), 1.0))
-                                
                             st.caption(f"Model: {result_tampered.get('model', 'N/A')}")
                         else:
                             st.error("Error in tampered detection")
@@ -251,7 +240,6 @@ if uploaded_file:
                             st.markdown(f"**Prediction:** `{prediction}`")
                             if synth_prob is not None:
                                 st.progress(min(max(synth_prob, 0.0), 1.0))
-                            
                         else:
                             st.error("Error in generated detection")
             
@@ -279,7 +267,6 @@ if uploaded_file:
                                     st.markdown(f"**Forged:** {status}", unsafe_allow_html=True)
                                 if prob is not None:
                                     st.progress(min(max(prob, 0.0), 1.0))
-                            
                                 st.caption(f"Model: {result_tampered.get('model', 'N/A')}")
                                 with st.expander("View Raw JSON"):
                                     st.json(result_tampered)
@@ -299,7 +286,6 @@ if uploaded_file:
                                 st.markdown(f"**Prediction:** `{prediction}`", unsafe_allow_html=True)
                                 if synth_prob is not None:
                                     st.progress(min(max(synth_prob, 0.0), 1.0))
-                                
                                 st.caption(f"AI by Model: {result_generated.get('ai_by_model', 'N/A')}")
                                 st.caption(f"AI by EXIF: {result_generated.get('ai_by_exif', 'N/A')}")
                                 st.caption(f"AI by C2PA: {result_generated.get('ai_by_c2pa', 'N/A')}")
@@ -322,7 +308,6 @@ if uploaded_file:
                                 st.markdown(f"**Forged:** {status}", unsafe_allow_html=True)
                             if prob is not None:
                                 st.progress(min(max(prob, 0.0), 1.0))
-                            
                             st.caption(f"Model: {result_tampered.get('model', 'N/A')}")
                             with st.expander("View Raw JSON"):
                                 st.json(result_tampered)
