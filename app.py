@@ -19,7 +19,6 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .stButton>button {
-        background-color: #4a90e2;
         color: white;
         border-radius: 8px;
         padding: 10px 20px;
@@ -100,6 +99,8 @@ analysis_mode = st.radio(
 
 # File uploader
 uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"], help="Supported formats: JPG, JPEG, PNG")
+
+# Clear results when a new file is uploaded
 if uploaded_file:
     # Check if the uploaded file is different from the previous one
     if "last_uploaded_file" not in st.session_state or st.session_state.last_uploaded_file != uploaded_file.name:
@@ -186,20 +187,21 @@ if uploaded_file:
                 
                 if result_generated and "error" not in result_generated:
                     prediction = result_generated.get("final_prediction", "").upper()
+                    p_synth = result_generated.get("p_synth", 0)
                     
-                    # Check multiple possible values for AI detection
+                    # Check if prediction indicates AI
                     if prediction in ["AI", "SYNTHETIC", "FAKE", "GENERATED"]:
                         is_generated = True
-                        confidence = max(confidence, result_generated.get("p_synth", 0))
+                        confidence = max(confidence, p_synth)
                         reasons.append("Image appears to be AI-generated")
-                    
-                    # Also check probability threshold as backup
-                    p_synth = result_generated.get("p_synth", 0)
-                    if p_synth > 0.5:  # If confidence is over 50%, consider it AI
+                    # If prediction is "REAL" but p_synth is very high, it's contradictory - trust the prediction
+                    elif prediction == "REAL":
+                        is_generated = False
+                    # If prediction is unknown/empty, use probability threshold
+                    elif p_synth > 0.5:
                         is_generated = True
                         confidence = max(confidence, p_synth)
-                        if "Image appears to be AI-generated" not in reasons:
-                            reasons.append("Image appears to be AI-generated")
+                        reasons.append("Image appears to be AI-generated")
                 
                 # Display consolidated result
                 with st.container():
@@ -212,7 +214,7 @@ if uploaded_file:
                         st.markdown('<div class="verdict real">REAL IMAGE</div>', unsafe_allow_html=True)
                     
                     st.progress(min(max(confidence, 0.0), 1.0))
-
+                    
                     
                     if reasons:
                         st.markdown("**Reasons:**")
@@ -235,6 +237,7 @@ if uploaded_file:
                                 st.markdown(f"**Forged:** {status}")
                             if prob is not None:
                                 st.progress(min(max(prob, 0.0), 1.0))
+                                
                             st.caption(f"Model: {result_tampered.get('model', 'N/A')}")
                         else:
                             st.error("Error in tampered detection")
@@ -247,6 +250,7 @@ if uploaded_file:
                             st.markdown(f"**Prediction:** `{prediction}`")
                             if synth_prob is not None:
                                 st.progress(min(max(synth_prob, 0.0), 1.0))
+                        
                         else:
                             st.error("Error in generated detection")
             
@@ -274,6 +278,7 @@ if uploaded_file:
                                     st.markdown(f"**Forged:** {status}", unsafe_allow_html=True)
                                 if prob is not None:
                                     st.progress(min(max(prob, 0.0), 1.0))
+                                    
                                 st.caption(f"Model: {result_tampered.get('model', 'N/A')}")
                                 with st.expander("View Raw JSON"):
                                     st.json(result_tampered)
@@ -293,6 +298,7 @@ if uploaded_file:
                                 st.markdown(f"**Prediction:** `{prediction}`", unsafe_allow_html=True)
                                 if synth_prob is not None:
                                     st.progress(min(max(synth_prob, 0.0), 1.0))
+                            
                                 st.caption(f"AI by Model: {result_generated.get('ai_by_model', 'N/A')}")
                                 st.caption(f"AI by EXIF: {result_generated.get('ai_by_exif', 'N/A')}")
                                 st.caption(f"AI by C2PA: {result_generated.get('ai_by_c2pa', 'N/A')}")
@@ -315,6 +321,7 @@ if uploaded_file:
                                 st.markdown(f"**Forged:** {status}", unsafe_allow_html=True)
                             if prob is not None:
                                 st.progress(min(max(prob, 0.0), 1.0))
+                                
                             st.caption(f"Model: {result_tampered.get('model', 'N/A')}")
                             with st.expander("View Raw JSON"):
                                 st.json(result_tampered)
@@ -342,4 +349,3 @@ if uploaded_file:
 
 # Footer
 st.markdown("---")
-
